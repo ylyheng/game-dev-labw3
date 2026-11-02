@@ -62,6 +62,7 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("Orb"))
         {
+            GameManager.Instance.Collect();
             Destroy(other.gameObject);
 
             Debug.Log("Orb collected!");
