@@ -22,6 +22,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform cameraTransform; // used by TODO 3 (camera follow)
 
     private Rigidbody rb;
+    private float h;
+    private float v;
 
     void Awake()
     {
@@ -35,19 +37,25 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        HandleMovement();
+        // Poll input in Update so key presses are never missed
+        Debug.Log($"h = {h}   |   v = {v}");   // ← add this
+        h = Input.GetAxisRaw("Horizontal");
+        v = Input.GetAxisRaw("Vertical");
     }
 
-    private void HandleMovement()
+    void FixedUpdate()
     {
-        float h = Input.GetAxis("Horizontal"); // A/D + arrows
-        float v = Input.GetAxis("Vertical");   // W/S + arrows
+        // Horizontal movement direction (camera-relative if you want later)
+        Vector3 moveDir = new Vector3(h, 0f, v).normalized;
 
-        Vector3 movement = new Vector3(h, 0f, v).normalized;
+        // Preserve current vertical velocity (gravity / falling / jumping)
+        Vector3 vel = moveDir * moveSpeed;
+        vel.y = rb.linearVelocity.y;
 
-        // Time.deltaTime makes speed identical at any frame rate (10 FPS or 144 FPS).
-        transform.Translate(movement * moveSpeed * Time.deltaTime, Space.World);
+        // Hand the velocity to the physics engine — it resolves wall collisions for us
+        rb.linearVelocity = vel;
     }
+
 
     // ---------------------------------------------------------------
     // TODO 1 (OnCollisionEnter): log the name of any wall you bump.
